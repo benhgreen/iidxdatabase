@@ -55,10 +55,24 @@ def songAdd(song_data, output):
 	else:
 		addClears(song_data, output_song)
 
+def callback(query, message):
+	if message["type"] == "DISCONNECT":
+    	print "Query in progress when library disconnected"
+    	print json.dumps(message["data"], indent = 4)
 
+	if message["type"] == "MESSAGE":
+		if "errorType" in message["data"]:
+      		print "Got an error!" 
+     	 	print json.dumps(message["data"], indent = 4)
+    else:
+     	 print "Got data!"
+     	 print json.dumps(message["data"], indent = 4)
+  	if query.finished(): 
+  		queryLatch.countdown()
 
 def getdatabase(userid):
 	client = clientGen()
+	queryLatch = latch(1)
 
 	client.query({
   		"extractorGuids":[
@@ -79,4 +93,8 @@ def getdatabase(userid):
 	        }
 	    }
 	}, callback)
+
+	queryLatch.await()
+
+	client.disconnect()
 	pass

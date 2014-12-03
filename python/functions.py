@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-	
 
-import sys
+import sys, json, httplib, urllib, logging, importio, latch
+from security import *
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -53,3 +54,29 @@ def songAdd(song_data, output):
 		return
 	else:
 		addClears(song_data, output_song)
+
+
+
+def getdatabase(userid):
+	client = clientGen()
+
+	client.query({
+  		"extractorGuids":[
+   			"665cb61b-45ed-438c-a31d-a21bb262c028"
+  		],
+  		"input": {
+        	"webpage/url": "https://programmedworld.net/iidx/22/players/9903-3601/records"
+   		},
+    	"additionalInput": {
+        	"665cb61b-45ed-438c-a31d-a21bb262c028": {
+	            "cookies": [],
+	            "domainCredentials": {
+	                "programmedworld.net": {
+	                    "username": getPWuser(),
+	                    "password": getPWpwd(),
+	                }
+	            }
+	        }
+	    }
+	}, callback)
+	pass

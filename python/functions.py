@@ -57,41 +57,41 @@ def songAdd(song_data, output):
 
 def callback(query, message):
 	if message["type"] == "DISCONNECT":
-    	print "Query in progress when library disconnected"
-    	print json.dumps(message["data"], indent = 4)
+		print "Query in progress when library disconnected"
+		print json.dumps(message["data"], indent = 4)
 
 	if message["type"] == "MESSAGE":
 		if "errorType" in message["data"]:
-      		print "Got an error!" 
-     	 	print json.dumps(message["data"], indent = 4)
-    else:
-     	 print "Got data!"
-     	 print json.dumps(message["data"], indent = 4)
-  	if query.finished(): 
-  		queryLatch.countdown()
+			print "Got an error!" 
+			print json.dumps(message["data"], indent = 4)
+	else:
+		 print "Got data!"
+		 print json.dumps(message["data"], indent = 4)
+	if query.finished(): 
+		queryLatch.countdown()
 
 def getdatabase(userid):
 	client = clientGen()
 	queryLatch = latch(1)
 
 	client.query({
-  		"extractorGuids":[
-   			"665cb61b-45ed-438c-a31d-a21bb262c028"
-  		],
-  		"input": {
-        	"webpage/url": "https://programmedworld.net/iidx/22/players/9903-3601/records"
-   		},
-    	"additionalInput": {
-        	"665cb61b-45ed-438c-a31d-a21bb262c028": {
-	            "cookies": [],
-	            "domainCredentials": {
-	                "programmedworld.net": {
-	                    "username": getPWuser(),
-	                    "password": getPWpwd(),
-	                }
-	            }
-	        }
-	    }
+		"extractorGuids":[
+			"665cb61b-45ed-438c-a31d-a21bb262c028"
+		],
+		"input": {
+			"webpage/url": "https://programmedworld.net/iidx/22/players/9903-3601/records"
+		},
+		"additionalInput": {
+			"665cb61b-45ed-438c-a31d-a21bb262c028": {
+				"cookies": [],
+				"domainCredentials": {
+					"programmedworld.net": {
+						"username": getPWuser(),
+						"password": getPWpwd(),
+					}
+				}
+			}
+		}
 	}, callback)
 
 	queryLatch.await()

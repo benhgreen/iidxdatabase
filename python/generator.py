@@ -3,8 +3,8 @@
 import json, sys
 from functions import songAdd
 
-player_data = json.load(open("pachypw.json"))
-output_data = json.load(open("sample.txt"))
+player_data = json.load(open("../various databases/pachypw.json"))
+output_data = json.load(open("../various databases/sample.txt"))
 output_file = open('outputdata.txt', 'w')
 
 for song in player_data["data"]:

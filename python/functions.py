@@ -41,49 +41,51 @@ def clearInt(clear):
 
 def addClears(song_data, output_song):
 	if "spa" in song_data:
-		output_song["stat_sa"] = clearInt(song_data["spa"][0])
+		output_song["stat_sa"] = clearInt(song_data["spa"])
 	if "sph" in song_data:
-		output_song["stat_sh"] = clearInt(song_data["sph"][0])
+		output_song["stat_sh"] = clearInt(song_data["sph"])
 	if "spn" in song_data:
-		output_song["stat_sn"] = clearInt(song_data["spn"][0])
+		output_song["stat_sn"] = clearInt(song_data["spn"])
 
 def songAdd(song_data, output):
-	output_song = lookup(song_data["song_title"][0], output)
+	output_song = lookup(song_data["song_title"], output)
 	if output_song == "NOTFOUND":
-		print("Song '%s' was not found!\n" % song_data["song_title"][0])
+		print("Song '%s' was not found!\n" % song_data["song_title"])
 		return
 	else:
 		addClears(song_data, output_song)
 
-def callback(query, message):
-	if message["type"] == "DISCONNECT":
-		print "Query in progress when library disconnected"
-		print json.dumps(message["data"], indent = 4)
-
-	if message["type"] == "MESSAGE":
-		if "errorType" in message["data"]:
-			print "Got an error!" 
-			print json.dumps(message["data"], indent = 4)
-	else:
-		 print "Got data!"
-		 print json.dumps(message["data"], indent = 4)
-	if query.finished(): 
-		queryLatch.countdown()
+scores = []
 
 def getdatabase(userid):
 	client = clientGen()
-	queryLatch = latch(1)
+	client.connect()
+	queryLatch = latch.latch(1)
+	
+	def callback(query, message):
+		global scores
+		
+		if message["type"] == "DISCONNECT":
+			print "Query in progress when library disconnected"
+		if message["type"] == "MESSAGE":
+			if "errorType" in message["data"]:
+				print "Got an error!" 
+			else:
+				print "Got data!"
+				scores.extend(message["data"]["results"])
+		
+		if query.finished(): 
+			queryLatch.countdown()
 
 	client.query({
-		"extractorGuids":[
+		"connectorGuids":[
 			"665cb61b-45ed-438c-a31d-a21bb262c028"
 		],
 		"input": {
-			"webpage/url": "https://programmedworld.net/iidx/22/players/9903-3601/records"
+			"webpage/url": "https://programmedworld.net/iidx/22/players/%s/records" % userid
 		},
 		"additionalInput": {
 			"665cb61b-45ed-438c-a31d-a21bb262c028": {
-				"cookies": [],
 				"domainCredentials": {
 					"programmedworld.net": {
 						"username": getPWuser(),
@@ -95,6 +97,7 @@ def getdatabase(userid):
 	}, callback)
 
 	queryLatch.await()
-
 	client.disconnect()
-	pass
+
+	print json.dumps(scores, indent=4)
+	return scores

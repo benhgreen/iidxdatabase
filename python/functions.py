@@ -6,14 +6,15 @@ from security import *
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+#strips stupid characters out of song title
 def strip(title):
 	mod = title.replace('"', '')
 	return "".join(char for char in mod if char not in " ()[]-#*†♥♥☆,!öÜ！Λ*？・?#.…、ø~～～〜øＸ↑↓'")
 
+#looks up song title and confirms that it exists in the database
 def lookup(title, output):
-
 	if "Wonder Girl" in title:
-		title.replace("Asada", "Asaba")
+		title = title.replace("Asada", "Asaba")
 
 	if title == "Vermilion":
 		title = "Vermillion"
@@ -27,6 +28,7 @@ def lookup(title, output):
 			return song
 	return "NOTFOUND"
 
+#returns integer corresponding with clear status
 def clearInt(clear):
 	return {
 		"No Play": 0,
@@ -39,6 +41,7 @@ def clearInt(clear):
 		"Full Combo": 7
 	}.get(clear, "ERROR")
 
+#adds clear status to output database
 def addClears(song_data, output_song):
 	if "spa" in song_data:
 		output_song["stat_sa"] = clearInt(song_data["spa"])
@@ -47,6 +50,7 @@ def addClears(song_data, output_song):
 	if "spn" in song_data:
 		output_song["stat_sn"] = clearInt(song_data["spn"])
 
+#attempts to add song to output database
 def songAdd(song_data, output):
 	output_song = lookup(song_data["song_title"], output)
 	if output_song == "NOTFOUND":
@@ -57,7 +61,7 @@ def songAdd(song_data, output):
 
 scores = []
 
-def getdatabase(userid):
+#gets users clear list
 	client = clientGen()
 	client.connect()
 	queryLatch = latch.latch(1)
@@ -98,6 +102,5 @@ def getdatabase(userid):
 
 	queryLatch.await()
 	client.disconnect()
-
-	print json.dumps(scores, indent=4)
+	
 	return scores
